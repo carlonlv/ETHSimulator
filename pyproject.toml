@@ -1,0 +1,29 @@
+[project]
+name = "ethsimulator"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "carlonlv",email = "carlonlv@hotmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11, <3.12"
+dependencies = [
+    "eth-account (>=0.13.5,<0.14.0)",
+    "numpy (>=2.2.4,<3.0.0)",
+    "psutil (>=7.0.0,<8.0.0)",
+    "web3 (>=7.9.0,<8.0.0)",
+    "types-psutil (>=7.0.0.20250218,<8.0.0.0)"
+]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
