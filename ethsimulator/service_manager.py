@@ -35,6 +35,7 @@ class ServiceManager(BaseModel):
         client = self.client_type
         command = clients[client]
         try:
+            print(command)
             result = subprocess.run(command, capture_output=True, text=True, check=True)
             version_info = result.stdout.strip()
             print(f"{client.capitalize()} is installed. Version info:\n{version_info}\n")
@@ -140,7 +141,10 @@ class ServiceManager(BaseModel):
         if self.client_type == "reth":
             command = ["reth", "node", "--http", "--http.addr", host, "--http.port", port, "--datadir", self.datadir]
         elif self.client_type == "geth":
-            command = ["geth", "--http", "--http.addr", host, "--http.port", port, "--datadir", self.datadir, "--syncmode", "full"]
+            command = ["geth", "--dev", "--http", "--http.addr", host, "--http.port", port, "--datadir", self.datadir]
+            # print command connected as a string
+            print(" ".join(command))
+            
         else:
             raise ValueError("Invalid client type. Choose 'reth' or 'geth'.")
 
@@ -180,8 +184,8 @@ class ServiceManager(BaseModel):
 if __name__ == "__main__":
     # Example: Connect to Reth and start it if needed
     server = ServiceManager(
-        client_type="reth",  # Change to "geth" for Geth
-        datadir="./reth_data",
+        client_type="geth",  # Change to "geth" for Geth
+        datadir="./datadi32",
         extra_args={"--network": "mainnet"},  # Example extra argument
     )
 
