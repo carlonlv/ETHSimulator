@@ -7,25 +7,28 @@ from eth_account import Account
 from pydantic import BaseModel, Field, PositiveFloat, PositiveInt, PrivateAttr
 
 
-class AccountCreation(BaseModel):
+class BalanceSamplerConfig(BaseModel):
+    """
+    Configuration for sampling initial balances for Ethereum accounts.
+    """
+
+    balance_type: Literal["constant", "normal", "uniform"] = Field(..., description="Method for balance assignment.")
+    constant_value: PositiveFloat = Field(100 * 10**18, description="Constant balance value in Wei.")
+    normal_mean: PositiveFloat = Field(100 * 10**18, description="Mean balance for normal distribution in Wei.")
+    normal_std: PositiveFloat = Field(20 * 10**18, description="Standard deviation for normal distribution in Wei.")
+    uniform_low: PositiveFloat = Field(50 * 10**18, description="Lower bound for uniform distribution in Wei.")
+    uniform_high: PositiveFloat = Field(150 * 10**18, description="Upper bound for uniform distribution in Wei.")
+
+
+class AccountCreator(BaseModel):
     """
     A class for generating Ethereum accounts and initializing balances
     for use in a Reth or Geth blockchain environment, with Pydantic validation.
 
     :param num_accounts: The number of Ethereum accounts to generate.
     :type num_accounts: PositiveInt
-    :param balance_type: The method for initializing balances.
-    :type balance_type: Literal["constant", "normal", "uniform"]
-    :param constant_value: The balance to assign for "constant" type (default: 100 ETH).
-    :type constant_value: PositiveFloat
-    :param normal_mean: Mean balance for "normal" type (default: 100 ETH).
-    :type normal_mean: PositiveFloat
-    :param normal_std: Standard deviation for "normal" type (default: 20 ETH).
-    :type normal_std: PositiveFloat
-    :param uniform_low: Lower bound for "uniform" type (default: 50 ETH).
-    :type uniform_low: PositiveFloat
-    :param uniform_high: Upper bound for "uniform" type (default: 150 ETH).
-    :type uniform_high: PositiveFloat
+    :param balance_sampler_config: Configuration for balance sampling.
+    :type balance_sampler_config: BalanceSamplerConfig
     :param chain_id: The Ethereum chain ID (default: 1337).
     :type chain_id: PositiveInt
     :param output_dir: Directory to save the generated files (default: ".").
@@ -33,12 +36,7 @@ class AccountCreation(BaseModel):
     """
 
     num_accounts: PositiveInt = Field(..., description="Number of Ethereum accounts to generate.")
-    balance_type: Literal["constant", "normal", "uniform"] = Field(..., description="Method for balance assignment.")
-    constant_value: PositiveFloat = Field(100 * 10**18, description="Constant balance value in Wei.")
-    normal_mean: PositiveFloat = Field(100 * 10**18, description="Mean balance for normal distribution in Wei.")
-    normal_std: PositiveFloat = Field(20 * 10**18, description="Standard deviation for normal distribution in Wei.")
-    uniform_low: PositiveFloat = Field(50 * 10**18, description="Lower bound for uniform distribution in Wei.")
-    uniform_high: PositiveFloat = Field(150 * 10**18, description="Upper bound for uniform distribution in Wei.")
+    balance_sampler_config: BalanceSamplerConfig = Field(..., description="Configuration for balance sampling.")
     chain_id: PositiveInt = Field(1337, description="Ethereum chain ID.")
     output_dir: str = Field(".", description="Directory to save generated files.")
 
@@ -47,7 +45,7 @@ class AccountCreation(BaseModel):
 
     def generate_accounts(self) -> None:
         """Generates Ethereum accounts and assigns initial balances based on the chosen balance type."""
-        match self.balance_type:
+        match self.balance_sampler_config.balance_type:
             case "constant":
                 balances = self._constant_balance()
             case "normal":
@@ -64,16 +62,16 @@ class AccountCreation(BaseModel):
 
     def _constant_balance(self) -> List[float]:
         """Assigns a constant balance to all accounts."""
-        return [self.constant_value] * self.num_accounts
+        return [self.balance_sampler_config.constant_value] * self.num_accounts
 
     def _normal_distribution_balance(self) -> List[float]:
         """Assigns balances from a normal distribution."""
-        balances = np.random.normal(loc=self.normal_mean, scale=self.normal_std, size=self.num_accounts).clip(min=0)
+        balances = np.random.normal(loc=self.balance_sampler_config.normal_mean, scale=self.balance_sampler_config.normal_std, size=self.num_accounts).clip(min=0)
         return [float(x) for x in balances.flatten().tolist()]
 
     def _uniform_distribution_balance(self) -> List[float]:
         """Assigns balances from a uniform distribution."""
-        return list(np.random.uniform(self.uniform_low, self.uniform_high, size=self.num_accounts))
+        return list(np.random.uniform(self.balance_sampler_config.uniform_low, self.balance_sampler_config.uniform_high, size=self.num_accounts))
 
     def save_to_files(self) -> None:
         """
@@ -117,11 +115,13 @@ if __name__ == "__main__":
     num_players = 10  # Number of Ethereum accounts
 
     # Choose balance initialization method
-    account_manager = AccountCreation(
+    account_manager = AccountCreator(
         num_accounts=num_players,
-        balance_type="normal",  # Change to "constant" or "uniform" as needed
-        normal_mean=100 * 10**18,
-        normal_std=20 * 10**18,
+        balance_sampler_config=BalanceSamplerConfig(
+            balance_type="normal",  # Change to "constant" or "uniform" as needed
+            normal_mean=100 * 10**18,
+            normal_std=20 * 10**18
+        ),
         output_dir=".",
     )
 
