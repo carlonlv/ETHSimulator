@@ -206,41 +206,41 @@ class SimulationManager(BaseModel):
 
     def _collect_metrics(
             self,
-            metric_name="up",
+            metric_name,
+            output_file,
             duration=600,
-            step="30s",
-            output_csv="metrics.csv"
         ) -> None:
-        """Collects metrics from Prometheus and saves them to a CSV file.
+        """Collects metrics from Prometheus and saves them to a parquet file.
     
-        :param metric_name: The name of the metric to collect, defaults to "up"
+        :param metric_name: The name of the metric to collect
         :type metric_name: str
-        :param duration_minutes: The duration of the metric collection in minutes, defaults to 10
-        :type duration_minutes: int
-        :param step: The step size for the metric collection, defaults to "30s"
-        :type step: str
+        :param output_file: The name of the output parquet file
+        :type output_file: str
+        :param duration: The duration of the metric collection in seconds, defaults to 600
+        :type duration: int
         """
         end = datetime.now(timezone.utc)
         start = end - timedelta(seconds=duration)
-        data = self._prometheus.get_metric_range_data(metric_name=metric_name, start_time=start, end_time=end, step=step)
+        data = self._prometheus.get_metric_range_data(metric_name=metric_name, start_time=start, end_time=end)
         # Convert Prometheus response to pandas DataFrame
         df_list = []
         for result in data:
             for values in result["values"]:
                 ts, val = values
-                df_list.append({"timestamp": datetime.utcfromtimestamp(float(ts)), "value": float(val), "metric": result["metric"]})
+                df_list.append({"timestamp": ts, "value": float(val), "metric": result["metric"]})
         df = pd.DataFrame(df_list)
-        full_path = os.path.join(self.results_dir, output_csv)
-        df.to_csv(full_path, index=False)
+        df["timestamp"] = pd.to_datetime(df['timestamp'], unit='s')
+        full_path = os.path.join(self.results_dir, output_file)
+        df.to_parquet(full_path)
         print(f"Saved metrics to {full_path}")
-        return df
 
     def run_simulation(
             self,
             enclave_name: Optional[str] = None,
             config_file: Optional[str] = None,
             timeout: Optional[int] = 600,
-            duration: int = 600
+            duration: int = 600,
+            collected_metrics: List[str] = []
         ) -> None:
         """Runs the simulation using the Kurtosis CLI.
 
@@ -298,11 +298,15 @@ class SimulationManager(BaseModel):
         # Update Prometheus connection for future metric collection
         self._prometheus = PrometheusConnect(url=prometheus_url, disable_ssl=True)
 
+        assert self._prometheus.check_prometheus_connection(), "Failed to connect to Prometheus."
+
         # Wait for a duration to collect metrics
         print(f"Waiting for {duration} seconds to collect metrics...")
         time.sleep(duration)
 
         # Collect the metrics
+        for metric in collected_metrics:
+            self._collect_metrics(metric, f"{enclave_name}_{metric}.parquet", duration=duration)
 
         # Stop the simulation
         self._stop_simulation()

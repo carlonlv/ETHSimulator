@@ -1,0 +1,165 @@
+# ============= with tx_fuzz =================
+
+# participants:
+#   - el_type: reth
+#     el_image: ghcr.io/paradigmxyz/reth
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: reth
+#     el_image: ghcr.io/paradigmxyz/reth
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: reth
+#     el_image: ghcr.io/paradigmxyz/reth
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: reth
+#     el_image: ghcr.io/paradigmxyz/reth
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: reth
+#     el_image: ghcr.io/paradigmxyz/reth
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: geth
+#     el_image: ethereum/client-go
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: geth
+#     el_image: ethereum/client-go
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: geth
+#     el_image: ethereum/client-go
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: geth
+#     el_image: ethereum/client-go
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+#   - el_type: geth
+#     el_image: ethereum/client-go
+#     # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+#     # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+#     cl_type: lighthouse
+#     cl_image: sigp/lighthouse:latest
+
+# snooper_enabled: true
+# # Enable additional services – these will be automatically started in your enclave.
+# additional_services:
+#   - tx_fuzz         # This service will generate random transactions.
+#   - prometheus_grafana  # This deploys both Prometheus and Grafana for monitoring.
+#   - dora            # For overall network insights.
+
+# ethereum_metrics_exporter_enabled: true
+
+# ========== with spamoor as txn generator ==========
+participants:
+  - el_type: reth
+    el_image: ghcr.io/paradigmxyz/reth
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: reth
+    el_image: ghcr.io/paradigmxyz/reth
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: reth
+    el_image: ghcr.io/paradigmxyz/reth
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: reth
+    el_image: ghcr.io/paradigmxyz/reth
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: reth
+    el_image: ghcr.io/paradigmxyz/reth
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+  - el_type: geth
+    el_image: ethereum/client-go
+    # (Optional) Pass additional arguments to Reth so that its HTTP JSON‑RPC and metrics endpoints are enabled.
+    # el_extra_params: ["--http", "--http.addr=0.0.0.0", "--http.port=8545", "--http.api=eth,net,txpool"]
+    cl_type: lighthouse
+    cl_image: sigp/lighthouse:latest
+
+# snooper_enabled: true
+# Enable additional services – these will be automatically started in your enclave.
+additional_services:
+  - spamoor
+  - prometheus_grafana  # This deploys both Prometheus and Grafana for monitoring.
+  - dora            # For overall network insights.
+
+spamoor_params:
+  # The image to use for spamoor
+  image: ethpandaops/spamoor:latest
+  # The spamoor scenario to use (see https://github.com/ethpandaops/spamoor)
+  # Valid scenarios are:
+  #  eoatx, erctx, deploytx, deploy-destruct, blobs, gasburnertx
+  # Defaults to eoatx
+  scenario: eoatx
+  # Throughput of spamoor
+  # Defaults to 1000eoatx --amount 20 --count 2000 --max-wallets 20 --throughput 20000
+  throughput: 20000
+  # Max pending transactions for spamoor
+  # Defaults to 1000
+  max_pending: 990000
+  # Max wallets for spamoor
+  # Defaults to 500
+  max_wallets: 20
+  # Extra parameters to send to spamoor
+  # Defaults to empty
+  spamoor_extra_args: [
+    "--count=200000",
+  ]
+
+ethereum_metrics_exporter_enabled: true
