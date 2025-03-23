@@ -311,7 +311,24 @@ class SimulationManager(BaseModel):
         # Stop the simulation
         self._stop_simulation()
 
-    def plot_metric(self, df, title="Metric Over Time"):
+    def plot_metric(self, enclave_name: Optional[str], metric_name: str, title="Metric Over Time") -> None:
+        """Plots a metric from the simulation.
+
+        :param enclave_name: The name of the enclave to use for the simulation, defaults to None
+        :type enclave_name: Optional[str]
+        :param metric_name: The name of the metric to plot
+        :type metric_name: str
+        :param title: The title of the plot, defaults to "Metric Over Time"
+        :type title: str
+        """
+        if enclave_name is None:
+            assert self._enclave_name is not None, "An enclave name must be provided."
+            enclave_name = self._enclave_name
+        full_path = os.path.join(self.results_dir, f"{enclave_name}_{metric_name}.parquet")
+        if not os.path.exists(full_path):
+            print(f"File {full_path} does not exist.")
+            return
+        df = pd.read_parquet(full_path)
         if df.empty:
             print("No data to plot.")
             return
