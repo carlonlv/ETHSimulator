@@ -2,8 +2,8 @@ import json
 import os
 import re
 import subprocess
-from datetime import datetime, timedelta, timezone
 import time
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Literal, Optional
 
 import matplotlib.pyplot as plt
@@ -205,13 +205,13 @@ class SimulationManager(BaseModel):
         print(process.stdout)
 
     def _collect_metrics(
-            self,
-            metric_name,
-            output_file,
-            duration=600,
-        ) -> None:
+        self,
+        metric_name,
+        output_file,
+        duration=600,
+    ) -> None:
         """Collects metrics from Prometheus and saves them to a parquet file.
-    
+
         :param metric_name: The name of the metric to collect
         :type metric_name: str
         :param output_file: The name of the output parquet file
@@ -229,19 +229,12 @@ class SimulationManager(BaseModel):
                 ts, val = values
                 df_list.append({"timestamp": ts, "value": float(val), "metric": result["metric"]})
         df = pd.DataFrame(df_list)
-        df["timestamp"] = pd.to_datetime(df['timestamp'], unit='s')
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
         full_path = os.path.join(self.results_dir, output_file)
         df.to_parquet(full_path)
         print(f"Saved metrics to {full_path}")
 
-    def run_simulation(
-            self,
-            enclave_name: Optional[str] = None,
-            config_file: Optional[str] = None,
-            timeout: Optional[int] = 600,
-            duration: int = 600,
-            collected_metrics: List[str] = []
-        ) -> None:
+    def run_simulation(self, enclave_name: Optional[str] = None, config_file: Optional[str] = None, timeout: Optional[int] = 600, duration: int = 600, collected_metrics: List[str] = []) -> None:
         """Runs the simulation using the Kurtosis CLI.
 
         :param config_file: The path to the configuration file to use for the simulation, defaults to None
@@ -262,7 +255,7 @@ class SimulationManager(BaseModel):
             assert enclave_name is not None, "An enclave name must be provided."
             self._enclave_name = enclave_name
             self._config_path = config_file
-    
+
         print(f"Running simulation with Kurtosis with config file: {config_file}")
         process = subprocess.Popen(["kurtosis", "run", "--enclave", enclave_name, "github.com/ethpandaops/ethereum-package", "--args-file", config_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
@@ -339,3 +332,10 @@ class SimulationManager(BaseModel):
         plt.title(title)
         plt.grid(True)
         plt.show()
+
+
+if __name__ == "__main__":
+    sim = SimulationManager()
+    config_file = sim.generate_config()
+    sim.run_simulation(config_file=config_file, timeout=600, duration=600, collected_metrics=["eth_exe_block_head_transactions_in_block"])
+    sim.plot_metric(enclave_name=None, metric_name="eth_exe_block_head_transactions_in_block")
