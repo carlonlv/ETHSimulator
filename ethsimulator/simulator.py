@@ -335,7 +335,9 @@ class SimulationManager(BaseModel):
 
 
 if __name__ == "__main__":
-    sim = SimulationManager()
-    config_file = sim.generate_config()
+    sim = SimulationManager(results_dir="./results")
+    config_file = sim.generate_config(spamoor_extra_args={
+        "count": 200000
+    })
     sim.run_simulation(config_file=config_file, timeout=600, duration=600, collected_metrics=["eth_exe_block_head_transactions_in_block"])
     sim.plot_metric(enclave_name=None, metric_name="eth_exe_block_head_transactions_in_block")
