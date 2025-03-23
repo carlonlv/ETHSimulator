@@ -85,6 +85,8 @@ class SimulationManager(BaseModel):
         assert len(el_clients) > 0, "At least one execution client must be specified."
         assert len(el_clients) == len(cl_clients), "The number of execution clients must match the number of consensus clients."
 
+        prometheus_config = {"scrape_interval": prometheus_scape_interval, "labels": prometheus_labels}
+
         participants = [
             {
                 "el_type": el_client,
@@ -168,6 +170,7 @@ class SimulationManager(BaseModel):
                 "cl_max_cpu": 0,
                 "cl_min_mem": 0,
                 "cl_max_mem": 0,
+                "prometheus_config": prometheus_config,
             }
             for el_client, cl_client in zip(el_clients, cl_clients)
         ]
@@ -181,12 +184,9 @@ class SimulationManager(BaseModel):
             "spamoor_extra_args": [f"--{k}={str(v)}" for k, v in spamoor_extra_args.items()],
         }
 
-        prometheus_config = {"scrape_interval": prometheus_scape_interval, "labels": prometheus_labels}
+        config = {"participants": participants, "spamoor_params": spamoor_params, "additional_services": ["spamoor", "prometheus_grafana", "dora"], "ethereum_metrics_exporter_enabled": True}
 
-        config = {"participants": participants, "spamoor_params": spamoor_params, "prometheus_config": prometheus_config, "additional_services": ["spamoor", "prometheus_grafana", "dora"], "ethereum_metrics_exporter_enabled": True}
-
-        config_json = json.dumps(config, indent=4)
-        config_hash = hash(config_json)
+        config_hash = hash(frozenset(config))
         if enclave_name is None:
             enclave_name = f"ethereum-sim-{config_hash}"
         else:
@@ -276,7 +276,6 @@ class SimulationManager(BaseModel):
                 if match:
                     prometheus_url = match.group()
                     print(f"📡 Found Prometheus endpoint: {prometheus_url}")
-                    break
 
         process.wait(timeout=timeout)
         if process.returncode != 0:
@@ -339,5 +338,5 @@ if __name__ == "__main__":
     config_file = sim.generate_config(spamoor_extra_args={
         "count": 200000
     })
-    sim.run_simulation(config_file=config_file, timeout=600, duration=600, collected_metrics=["eth_exe_block_head_transactions_in_block"])
+    sim.run_simulation(config_file=None, timeout=600, duration=600, collected_metrics=["eth_exe_block_head_transactions_in_block"])
     sim.plot_metric(enclave_name=None, metric_name="eth_exe_block_head_transactions_in_block")
