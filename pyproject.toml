@@ -21,7 +21,10 @@ dependencies = [
     "matplotlib (>=3.10.1,<4.0.0)",
     "prometheus-api-client (>=0.5.7,<0.6.0)",
     "types-pyyaml (>=6.0.12.20241230,<7.0.0.0)",
-    "pandas-stubs (>=2.2.3.250308,<3.0.0.0)"
+    "pandas-stubs (>=2.2.3.250308,<3.0.0.0)",
+    "pyarrow (>=19.0.1,<20.0.0)",
+    "fastparquet (>=2024.11.0,<2025.0.0)",
+    "ipykernel (>=6.29.5,<7.0.0)"
 ]
 
 [tool.pydantic-mypy]
@@ -32,6 +35,9 @@ warn_untyped_fields = true
 
 [tool.mypy]
 plugins = ['pydantic.mypy']
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

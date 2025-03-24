@@ -338,5 +338,5 @@ if __name__ == "__main__":
     config_file = sim.generate_config(spamoor_extra_args={
         "count": 200000
     })
-    sim.run_simulation(config_file=None, timeout=600, duration=600, collected_metrics=["eth_exe_block_head_transactions_in_block"])
+    sim.run_simulation(timeout=600, duration=100, collected_metrics=["eth_exe_block_head_transactions_in_block"])
     sim.plot_metric(enclave_name=None, metric_name="eth_exe_block_head_transactions_in_block")
