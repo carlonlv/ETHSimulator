@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import subprocess
@@ -19,10 +18,8 @@ IMAGE_MAPPER = {
     "besu": "hyperledger/besu:develop",
     "reth": "ghcr.io/paradigmxyz/reth",
     "ethereumjs": "ethpandaops/ethereumjs:master",
-    "nimbus-eth1": "ethpandaops/nimbus-eth1:master",
     "lighthouse": "sigp/lighthouse:latest",
     "teku": "consensys/teku:latest",
-    "nimbus": "statusim/nimbus-eth2:multiarch-latest",
     "prysm": "gcr.io/prysmaticlabs/prysm/beacon-chain:latest",
     "lodestar": "chainsafe/lodestar:next",
     "grandine": "sifrai/grandine:stable",
@@ -47,8 +44,8 @@ class SimulationManager(BaseModel):
     def generate_config(
         self,
         enclave_name: Optional[str] = None,
-        el_clients: List[Literal["geth", "erinon", "nethermind", "besu", "reth", "ethereumjs", "nimbus-eth1"]] = ["geth"],
-        cl_clients: List[Literal["lighthouse", "teku", "nimbus", "prysm", "lodestar", "grandine"]] = ["lighthouse"],
+        el_clients: List[Literal["geth", "erigon", "nethermind", "besu", "reth", "ethereumjs"]] = ["geth"],
+        cl_clients: List[Literal["lighthouse", "teku", "prysm", "lodestar", "grandine"]] = ["lighthouse"],
         spamoor_scenario: Literal["eoatx", "erctx", "deploytx", "deploy-destruct", "blobs", "gasburnertx"] = "eoatx",
         spamoor_throughput: int = 1000,
         spamoor_max_pending: int = 1000,
@@ -62,9 +59,9 @@ class SimulationManager(BaseModel):
         :param enclave_name: The name of the enclave to use for the simulation, defaults to None
         :type enclave_name: Optional[str]
         :param el_clients: A list of Ethereum execution clients to use in the simulation, defaults to ["geth"]
-        :type el_clients: List[Literal["geth", "erinon", "nethermind", "besu", "reth", "ethereumjs", "nimbus-eth1"]]
+        :type el_clients: List[Literal["geth", "erigon", "nethermind", "besu", "reth", "ethereumjs"]]
         :param cl_clients: A list of Ethereum consensus clients to use in the simulation, defaults to ["lighthouse"]
-        :type cl_clients: List[Literal["lighthouse", "teku", "nimbus", "prysm", "lodestar", "grandine"]]
+        :type cl_clients: List[Literal["lighthouse", "teku", "prysm", "lodestar", "grandine"]]
         :param spamoor_scenario: The spamoor scenario to use in the simulation, defaults to "eoatx"
         :type spamoor_scenario: Literal["eoatx", "erctx", "deploytx", "deploy-destruct", "blobs", "gasburnertx"]
         :param spamoor_throughput: The throughput of the spamoor scenario, defaults to 1000
@@ -227,7 +224,7 @@ class SimulationManager(BaseModel):
         for result in data:
             for values in result["values"]:
                 ts, val = values
-                df_list.append({"timestamp": ts, "value": float(val), "metric": result["metric"]})
+                df_list.append({"timestamp": ts, "value": float(val), **result["metric"]})
         df = pd.DataFrame(df_list)
         df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
         full_path = os.path.join(self.results_dir, output_file)
@@ -292,16 +289,17 @@ class SimulationManager(BaseModel):
 
         assert self._prometheus.check_prometheus_connection(), "Failed to connect to Prometheus."
 
-        # Wait for a duration to collect metrics
-        print(f"Waiting for {duration} seconds to collect metrics...")
-        time.sleep(duration)
+        if len(collected_metrics) > 0:
+            # Wait for a duration to collect metrics
+            print(f"Waiting for {duration} seconds to collect metrics...")
+            time.sleep(duration)
 
-        # Collect the metrics
-        for metric in collected_metrics:
-            self._collect_metrics(metric, f"{enclave_name}_{metric}.parquet", duration=duration)
+            # Collect the metrics
+            for metric in collected_metrics:
+                self._collect_metrics(metric, f"{enclave_name}_{metric}.parquet", duration=duration)
 
-        # Stop the simulation
-        self._stop_simulation()
+            # Stop the simulation
+            self._stop_simulation()
 
     def plot_metric(self, enclave_name: Optional[str], metric_name: str, title="Metric Over Time") -> None:
         """Plots a metric from the simulation.
@@ -338,5 +336,5 @@ if __name__ == "__main__":
     config_file = sim.generate_config(spamoor_extra_args={
         "count": 200000
     })
-    sim.run_simulation(timeout=600, duration=100, collected_metrics=["eth_exe_block_head_transactions_in_block"])
-    sim.plot_metric(enclave_name=None, metric_name="eth_exe_block_head_transactions_in_block")
+    sim.run_simulation(timeout=600, duration=10, collected_metrics=[])
+    # sim.plot_metric(enclave_name=None, metric_name="reth_network_occurrences_transactions_already_in_pool")

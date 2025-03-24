@@ -10,18 +10,21 @@ collection_metrics = [
     "cpu_iowait_seconds_total",
     "disk_node_reads_total",
     "process_cpu_seconds_total",
-    "reth_network_occurrences_transactions_already_in_pool",
-    "reth_network_pool_transactions_messages_received_total",
     "eth_exe_block_head_transactions_in_block"
+    "cpu_idle_seconds_total",
+    "cpu_system_seconds_total",
+    "cpu_user_seconds_total",
+    "cpu_threads",
+    "disk_node_writes_total"
 ]
 
 # %%
 parameter_sweep = pd.DataFrame({
-    "spamoor_extra_args": [{"amount": 20, "count": 2000}] * 7,
+    "spamoor_extra_args": [{"amount": 20, "count": 2000}] * 6,
     "spamoor_max_wallets": 20,
     "spamoor_throughput": 20000,
-    "el_clients": [['geth'], ['erinon'], ['nethermind'], ['besu'], ['reth'], ['ethereumjs'], ['nimbus-eth1']],
-    "cl_clients": [['lighthouse']] * 7,
+    "el_clients": [['geth'], ['erigon'], ['nethermind'], ['besu'], ['reth'], ['ethereumjs']],
+    "cl_clients": [['lighthouse']] * 6,
 })
 
 parameter_sweep = parameter_sweep.merge(
@@ -51,8 +54,3 @@ for _, row in parameter_sweep.iterrows():
         spamoor_extra_args=row["spamoor_extra_args"]
     )
     sim.run_simulation(timeout=600, duration=300, collected_metrics=collection_metrics)
-
-# %%
-
-
-
