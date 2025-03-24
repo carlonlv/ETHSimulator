@@ -41,7 +41,7 @@ duration = 5 * 60
 parameter_sweep
 
 # %%
-sim = SimulationManager(results_dir="./results")
+sim = SimulationManager(results_dir="./new_results")
 for _, row in parameter_sweep.iterrows():
     print(row)
     config_file = sim.generate_config(

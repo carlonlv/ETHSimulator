@@ -226,7 +226,7 @@ class SimulationManager(BaseModel):
                 ts, val = values
                 df_list.append({"timestamp": ts, "value": float(val), **result["metric"]})
         df = pd.DataFrame(df_list)
-        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
+        # df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
         full_path = os.path.join(self.results_dir, output_file)
         df.to_parquet(full_path)
         print(f"Saved metrics to {full_path}")
@@ -332,9 +332,22 @@ class SimulationManager(BaseModel):
 
 
 if __name__ == "__main__":
-    sim = SimulationManager(results_dir="./results")
+    sim = SimulationManager(results_dir="./tmp")
     config_file = sim.generate_config(spamoor_extra_args={
         "count": 200000
     })
-    sim.run_simulation(timeout=600, duration=10, collected_metrics=[])
+    sim.run_simulation(timeout=600, duration=10, collected_metrics=[
+        "eth_exe_block_head_gas_used",
+        "eth_exe_gas_price_gwei",
+        "network_node_bytes_total_received",
+        "cpu_iowait_seconds_total",
+        "disk_node_reads_total",
+        "process_cpu_seconds_total",
+        "eth_exe_block_head_transactions_in_block"
+        "cpu_idle_seconds_total",
+        "cpu_system_seconds_total",
+        "cpu_user_seconds_total",
+        "cpu_threads",
+        "disk_node_writes_total"
+    ])
     # sim.plot_metric(enclave_name=None, metric_name="reth_network_occurrences_transactions_already_in_pool")
